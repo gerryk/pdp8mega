@@ -107,6 +107,38 @@ void to_memory(int rval, int rmem)
     }
 }
 
+void verifyEprom( void )  {
+    word i;
+    byte data;
+    Serial.println("Read EEPROM 8K...");
+    for (i=0; i<=8191; ++i) {
+        data = i2c_eeprom_read_byte(0x50, i);      //take from external eeprom
+        //Serial.println(data);
+    }
+}
+
+void verifyRAM( void )  {
+    word i;
+    byte data1, data2;
+    boolean ok;
+    Serial.print("Read & Verify RAM...");
+    for (i=0; i<=8191; ++i) {
+      write_SR(data1,i);
+      data2 = read_SR(i);
+      Serial.print(i);
+      Serial.print(":");
+      Serial.print(data1);
+      Serial.print(":");
+      Serial.print(data2);
+      Serial.println(data1 == data2?"OK":"NG");
+      //delay(100);
+      data1++;
+      if (data1 != data2) ok = false;
+    }
+    if (ok) Serial.println("OK");
+    else Serial.println("NG");
+}
+
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
@@ -816,6 +848,8 @@ void setup()
     lcd_R.print("Inicio               ");
     Serial.println("Setup Started...");
     iniRAM();
+    verifyRAM();
+    verifyEprom();
     leeprom();
     lcd_R.setCursor(0,0);
     /*
